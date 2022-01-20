@@ -280,7 +280,6 @@ func createVpcAndSubnetCRD(tenant, vpc, subnet, vpcDefaultTemplatePath, subnetDe
 		klog.Errorf("Create actual VPC object (%s) in error (%v).", vpc, err)
 		return err
 	}
-	klog.V(4).Infof("Complete to create VPC: (%s) successfully", vpc)
 
 	// Create Subnet CRD
 	err = createVpcOrSubnetCRD(tenant, subnet, subnetDefaultTemplatePath, discoveryClient, dynamicClient)
@@ -288,7 +287,6 @@ func createVpcAndSubnetCRD(tenant, vpc, subnet, vpcDefaultTemplatePath, subnetDe
 		klog.Errorf("Create actual Subnet object (%s) in error (%v).", subnet, err)
 		return err
 	}
-	klog.V(4).Infof("Complete to create VPC: (%s) and Subnet: (%s) successfully", vpc, subnet)
 
 	return nil
 }
@@ -307,7 +305,6 @@ func createVpcOrSubnetCRD(tenant, vpcOrSubnetName, defaultTemplatePath string, d
 		klog.Errorf("Create CRD object (%s) in error: (%v)", vpcOrSubnetName, err)
 		return err
 	}
-	klog.V(3).Infof("Create CRD object: (%s) successfully", vpcOrSubnetName)
 
 	return nil
 }
@@ -322,20 +319,15 @@ func createUnstructuredObject(data []byte, vpcOrSubnetName string, discoveryClie
 		klog.Errorf("Getting GVK in error (%v).", err)
 		return err
 	}
-	klog.V(4).Infof("Get Name : (%s) and GVK: (%s)", unstructuredObj.GetName(), gvk.String())
 
 	// Get mapping from GVK for GVR (Group Version Resource) used by dynamic client resource
 	mapper := restmapper.NewDeferredDiscoveryRESTMapper(memory.NewMemCacheClient(discoveryClient))
-	klog.V(4).Infof("Name: %s - GVK group kind : (%v) - GVK version: (%v)", unstructuredObj.GetName(), gvk.GroupKind(), gvk.Version)
 	mapping, err := mapper.RESTMapping(gvk.GroupKind(), gvk.Version)
 
-	klog.V(4).Infof("Name: %s - GVK group kind : (%s) - GVK version: (%s)", unstructuredObj.GetName(), unstructuredObj.GetKind(), unstructuredObj.GetAPIVersion())
 	if err != nil {
 		klog.Errorf("Get mapping between GVK and GVR in error (%v).", err)
 		return err
 	}
-
-	klog.V(4).Infof("Name: %s - get mapping scope name: (%s) - meta RESTScopeNameNamespace: (%s)", unstructuredObj.GetName(), mapping.Scope.Name(), meta.RESTScopeNameNamespace)
 
 	// Create dynamic client resource
 	var dynamicClientResource dynamic.ResourceInterface
@@ -345,7 +337,6 @@ func createUnstructuredObject(data []byte, vpcOrSubnetName string, discoveryClie
 			unstructuredObj.SetNamespace("default")
 		}
 		namespace := unstructuredObj.GetNamespace()
-		klog.V(4).Infof("Mapping resource: (%v) - set tenant: (%s) - namespace : (%s)", mapping.Resource, "system", namespace)
 		dynamicClientResource = dynamicClient.Resource(mapping.Resource).NamespaceWithMultiTenancy(namespace, "system")
 
 	} else {
