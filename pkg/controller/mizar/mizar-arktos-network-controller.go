@@ -215,11 +215,6 @@ func (c *MizarArktosNetworkController) processNetworkCreation(network *v1.Networ
 		// Create default VPC and Subnet after system tenant's arktos network is created successfully
 		if network.Spec.Type == mizarNetworkType && network.Status.Phase == v1.NetworkReady {
 			klog.V(4).Infof("For system tenant: start to create VPC(%s) and Subnet(%s)", vpc, subnet)
-			//if vpcdefaulttemplatepath == "" || subnetdefaulttemplatepath == "" {
-			//	klog.Errorf("VPC default template path or Subnet default template path is blank")
-			//	return errors.New("Ensure you are in Arktos home directory to start Arktos ......")
-			//}
-
 			err := createVpcAndSubnetCRD(network.Tenant, vpc, subnet, vpcdefaulttemplatepath, subnetdefaulttemplatepath, c.discoveryClient, c.dynamicClient)
 			if err != nil {
 				klog.Errorf("For system tenant (%s): create actual VPC object or Subnet object in error (%v).", err)
@@ -257,12 +252,6 @@ func (c *MizarArktosNetworkController) processNetworkCreation(network *v1.Networ
 
 	// Create default VPC and Subnet after non-system tenant's arktos network is created successfully
 	klog.V(4).Infof("For non-system tenant (%s): start to create VPC(%s) and Subnet(%s)", network.Tenant, vpc, subnet)
-
-	//if vpcdefaulttemplatepath == "" || subnetdefaulttemplatepath == "" {
-	//	klog.Errorf("VPC default template path or Subnet default template path is blank")
-	//	return errors.New("Ensure you are in Arktos home directory to start Arktos ......")
-	//}
-
 	err := createVpcAndSubnetCRD(network.Tenant, vpc, subnet, vpcdefaulttemplatepath, subnetdefaulttemplatepath, c.discoveryClient, c.dynamicClient)
 	if err != nil {
 		klog.Errorf("For non-system tenant (%s): create actual VPC object or Subnet object in error (%v).", err)
